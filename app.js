@@ -1,7 +1,7 @@
 // Grab relevant HTML elements
 const section = document.querySelector('section');
 const playerLivesCount = document.querySelector('span');
-let playerLives = 5;
+let playerLives = 20;
 
 
 // add javascript to HTML document
@@ -40,6 +40,7 @@ const randomize = () => {
 const cardGenerator = () => {
   const cardData = randomize();
 
+  let gameStatus = 0;
   // Generate the HTML
   cardData.forEach((item, index) => {
     const card = document.createElement('div');
@@ -61,9 +62,10 @@ const cardGenerator = () => {
     // add event listener to card
     card.addEventListener('click', (e) => {
       card.classList.toggle('toggleCard');
-      //const gameStatus = checkCards(e)
+      gameStatus = checkCards(e)
       
     })
+    
   })
 }
 
@@ -84,6 +86,7 @@ const checkCards = (e) => {
       console.log("match");
       flippedCards.forEach(card => {
         card.classList.remove('flipped');
+        card.style.pointerEvents = 'none';
       })
 
       // if everything is flipped
@@ -96,18 +99,45 @@ const checkCards = (e) => {
         setTimeout(() => card.classList.remove('toggleCard'), 1000);
       })
 
-      // lose a life
-      console.log(playerLives)
-
-      playerLives -= 1;
-      playerLivesCount.textContent = playerLives;
-      if(playerLives == 0){
-        //game over; should not be able to flip any more cards
-        
-
+      playerLives--;
+      playerLivesCount.textContent = playerLives
+      if(playerLives === 0){
+        setTimeout(() => restart("Try again"), 1000);
       }
     }
   }
+
+  const toggleCard = document.querySelectorAll('.toggleCard');
+  // run a check to see if we won the game
+  if(toggleCard.length === 16){
+    setTimeout(() => restart("You won the game"), 1000);
+  }
+}
+
+const restart = (text) => {
+  let cardData = randomize();
+  let faces = document.querySelectorAll('.face');
+  let cards = document.querySelectorAll('.card');
+
+  section.style.pointerEvents = "none";
+  cardData.forEach((item, index) => {
+    cards[index].classList.remove('toggleCard');
+
+    setTimeout(() => {
+      cards[index].style.pointerEvents = 'all';
+      faces[index].src = item.imgSrc;
+      cards[index].setAttribute('name', item.name);
+      section.style.pointerEvents = 'all';
+    }, 1000);
+    
+  })
+
+  playerLives = 20;
+  playerLivesCount.textContent = playerLives;
+  setTimeout(() => {
+    window.alert(text)
+  }, 100);
+  
 }
 
 
